@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aqua Epoch – Water Potability and pH</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F5FA;--card:#fff;--ink:#0F1E3D;--mute:#62708C;--line:#DDE4F0;--blue:#1F4FD8;--blue2:#E6ECFD;--coral:#E4572E;--green:#13915B;--amber:#C98A00}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif}
+.top{background:var(--blue);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 22px) 20px 0}
+.in{max-width:1140px;margin:0 auto}
+.brand{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:1.9rem;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.top p{margin:6px 0 0;opacity:.85;max-width:60ch;font-size:.95rem}
+.pill{font:500 .78rem "JetBrains Mono",monospace;background:rgba(255,255,255,.16);padding:6px 12px;border-radius:999px}
+.tabs{display:flex;gap:4px;margin-top:22px}
+.tab{background:transparent;color:#fff;border:0;padding:11px 20px;border-radius:10px 10px 0 0;font:700 .95rem Manrope,sans-serif;cursor:pointer;opacity:.8}
+.tab[aria-selected=true]{background:var(--bg);color:var(--ink);opacity:1}
+main{max-width:1140px;margin:0 auto;padding:22px 20px 56px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:880px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+h2{margin:0 0 4px;font-size:1.1rem;font-weight:800}
+.sub{margin:0 0 18px;color:var(--mute);font-size:.9rem}
+.f{padding:14px 0;border-top:1px solid var(--line)}.f:first-of-type{border-top:0;padding-top:0}
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+label{font-weight:700;display:flex;align-items:center;gap:8px}
+.tip{position:relative;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--blue);color:var(--blue);background:var(--blue2);font:700 .72rem Manrope;display:inline-grid;place-items:center;cursor:help;padding:0}
+.tip .b{position:absolute;left:0;bottom:130%;width:min(280px,70vw);background:var(--ink);color:#fff;font-weight:500;font-size:.8rem;line-height:1.45;padding:10px 12px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:9;text-align:left}
+.tip:hover .b,.tip:focus .b{opacity:1}
+.box{display:flex;align-items:center;border:2px solid var(--line);border-radius:10px;background:#fff;width:176px}
+.box:focus-within{border-color:var(--blue)}.box.err{border-color:var(--coral)}
+input[type=number]{width:100%;border:0;outline:0;background:transparent;font:500 1rem "JetBrains Mono",monospace;padding:8px 10px;color:var(--ink)}
+.u{padding:0 10px;color:var(--mute);font-size:.78rem;white-space:nowrap}
+input[type=range]{width:100%;margin:12px 0 2px;accent-color:var(--blue);height:24px}
+.bandwrap{position:relative;height:8px;border-radius:4px;background:#E8ECF4;margin-top:-4px}
+.band{position:absolute;top:0;bottom:0;background:#9BDCBD;border-radius:4px}
+.scale{display:flex;justify-content:space-between;font-size:.74rem;color:var(--mute);margin-top:5px}
+.m{font-size:.8rem;color:var(--coral);min-height:1.2em;margin-top:2px}
+details{margin-top:6px;border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;font-weight:700;color:var(--blue)}
+.adv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-top:14px}
+@media(max-width:520px){.adv{grid-template-columns:1fr}}
+.adv label{font-size:.85rem;font-weight:600;margin-bottom:4px}
+.adv .box{width:100%}
+.go{margin-top:18px;width:100%;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:14px;font:800 1rem Manrope,sans-serif;cursor:pointer}
+.go:disabled{opacity:.6;cursor:wait}
+:focus-visible{outline:3px solid #FFB020;outline-offset:2px}
+.verdict{border-radius:14px;padding:18px 20px;border:2px solid var(--line);background:#FAFBFD;margin-bottom:18px}
+.verdict.safe{border-color:var(--green);background:#E8F6EF}.verdict.unsafe{border-color:var(--coral);background:#FDEEE9}
+.verdict b{display:block;font-size:1.5rem;font-weight:800;line-height:1.2}.verdict span{color:var(--mute);font-size:.88rem}
+.phnum{font:500 2.2rem "JetBrains Mono",monospace;margin:0}
+.phbar{position:relative;height:14px;border-radius:7px;background:linear-gradient(90deg,#E4572E,#F0A030,#E9DC4F,#4DB87A,#2E9BC4,#3E62D3,#6B45B0);margin-top:12px}
+.zone{position:absolute;top:-4px;bottom:-4px;left:46.43%;width:14.29%;border:2px solid var(--ink);border-radius:6px}
+.pin{position:absolute;top:-7px;width:6px;height:28px;background:var(--ink);border:2px solid #fff;border-radius:4px;transform:translateX(-50%);left:50%;opacity:0;transition:left .4s}
+.pin.on{opacity:1}
+.lab{display:flex;justify-content:space-between;font-size:.74rem;color:var(--mute);margin-top:6px}
+.ghost{background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font:600 .8rem Manrope;cursor:pointer;color:var(--ink)}
+.hh{display:flex;justify-content:space-between;align-items:center;margin:22px 0 8px}
+.empty{color:var(--mute);font-size:.88rem;padding:14px;border:1px dashed var(--line);border-radius:10px;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px}th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font:500 1.6rem "JetBrains Mono",monospace}.stat span{color:var(--mute);font-size:.82rem}
+.sel{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.sel button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:700 .82rem Manrope;cursor:pointer}
+.sel button[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+svg{width:100%;display:block}
+.key{display:flex;gap:16px;font-size:.8rem;color:var(--mute);margin-top:6px;flex-wrap:wrap}.key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.warn{background:#FFF6DF;border:1px solid #F0D58A;border-radius:12px;padding:12px 14px;font-size:.86rem;margin-top:16px}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="brand">
+    <div><h1>Aqua Epoch</h1><p>Check if a water sample is safe to drink and predict its pH. Trained on 22,611 BIS-style water samples.</p></div>
+    <span id="status" class="pill">checking API…</span>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t1" aria-selected="true" aria-controls="p1">Predict</button>
+    <button class="tab" role="tab" id="t2" aria-selected="false" aria-controls="p2">Dataset insights</button>
+  </div>
+</div></div>
+
+<main>
+<section id="p1" role="tabpanel" aria-labelledby="t1" class="grid">
+  <div class="card">
+    <h2>Water sample</h2>
+    <p class="sub">The three main readings are required. Drag the slider or type a value; the green band is where most potable samples in the dataset fall.</p>
+    <form id="form" novalidate>
+      <div id="req"></div>
+      <details id="more"><summary>More parameters (optional, 15)</summary>
+        <p class="sub" style="margin:8px 0 0">Leave any blank and the backend fills it with the value learned in training (imputer).</p>
+        <div class="adv" id="adv"></div>
+      </details>
+      <button class="go" id="go" type="submit">Predict</button>
+    </form>
+  </div>
+
+  <div class="card" aria-live="polite">
+    <h2>Result</h2>
+    <p class="sub">Two models run on every request: a classifier for safety and a regressor for pH.</p>
+    <div id="verdict" class="verdict"><b>No result yet</b><span>Enter the readings and press Predict.</span></div>
+    <div class="top-row"><span style="font-weight:700">Predicted pH</span><p class="phnum" id="phval">–</p></div>
+    <div class="phbar"><div class="zone"></div><div class="pin" id="pin"></div></div>
+    <div class="lab"><span>0 acidic</span><span>outlined box: 6.5 to 8.5 (BIS)</span><span>14 basic</span></div>
+    <div class="hh"><h2 style="margin:0">Past predictions</h2><button class="ghost" id="clear" type="button">Clear</button></div>
+    <div id="trend"></div>
+    <table id="tbl" hidden><thead><tr><th>Time</th><th>Turb.</th><th>Hard.</th><th>TDS</th><th>pH</th><th>Safe</th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<section id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+  <div class="stats" id="stats"></div>
+  <div class="grid">
+    <div class="card">
+      <h2>How samples are distributed</h2>
+      <p class="sub">Potable and non-potable samples compared. Your current input shows as a dashed line.</p>
+      <div class="sel" id="sel"></div>
+      <div id="hist"></div>
+      <div class="key"><span><i style="background:var(--blue)"></i>Potable</span><span><i style="background:var(--coral)"></i>Not potable</span></div>
+      <div class="warn"><b>Note on scale.</b> TDS in this dataset has a median of about 21,000, far above the real BIS limit of 500 mg/L, so the app judges values against the dataset, not drinking-water law.</div>
+    </div>
+    <div class="card">
+      <h2>What moves potability most</h2>
+      <p class="sub">Correlation of each parameter with the Potability label. Fluoride, nitrate and TDS stand out.</p>
+      <div id="corr"></div>
+      <h2 style="margin-top:22px">Missing readings</h2>
+      <p class="sub">Handled by the imputer before scaling.</p>
+      <div id="miss"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+/* ===== CONFIG: match your backend ===== */
+const API_URL = "http://127.0.0.1:8000";
+const PREDICT_PATH = "/predict";   // POST JSON of all features below (blank ones sent as null) -> {potability:0|1, ph:number}
+/* Required fields. band = range where most potable samples sit in the training data. */
+const REQ = [
+ {k:"Turbidity",l:"Turbidity",u:"NTU",min:0,max:100,band:[1.5,4.5],step:.1,tip:"Cloudiness of water. BIS limit is 1 NTU (5 permissible). In this dataset potable samples sit between about 1.5 and 4.5 NTU. Allowed input: 0 to 100."},
+ {k:"Hardness",l:"Hardness",u:"mg/L",min:0,max:500,band:[100,290],step:1,tip:"Calcium plus magnesium as CaCO3. BIS limit is 200 mg/L (600 permissible). Potable samples here sit between about 100 and 290. Allowed input: 0 to 500."},
+ {k:"TDS",l:"Total dissolved solids",u:"mg/L",min:0,max:100000,band:[1000,28000],step:100,tip:"Dissolved salts and minerals. BIS limit is 500 mg/L, but this dataset is on a larger scale: potable samples sit below about 28,000. Allowed input: 0 to 100,000."}
+];
+/* Optional fields (key = dataset column name, order is irrelevant here; backend should reorder to its training columns). */
+const OPT = [
+ ["pH","pH (if you measured it)","",0,14],["Chloramines","Chloramines","ppm",0,20],["Sulfate","Sulfate","mg/L",0,600],["Conductivity","Conductivity","µS/cm",0,1000],
+ ["Organic_carbon","Organic carbon","ppm",0,40],["Trihalomethanes","Trihalomethanes","µg/L",0,200],["Calcium","Calcium","mg/L",0,200],["Magnesium","Magnesium","mg/L",0,80],
+ ["Sodium","Sodium","mg/L",0,200],["Potassium","Potassium","mg/L",0,100],["Chloride","Chloride","mg/L",0,400],["Nitrate","Nitrate","mg/L",0,200],
+ ["Fluoride","Fluoride","mg/L",0,8],["Iron","Iron","mg/L",0,3],["Alkalinity","Alkalinity","mg/L",0,400]
+].map(a=>({k:a[0],l:a[1],u:a[2],min:a[3],max:a[4]}));
+const MED = {pH:7.1,Chloramines:7.11,Sulfate:332.19,Conductivity:423.38,Organic_carbon:14.25,Trihalomethanes:66.17,Calcium:74.59,Magnesium:29.46,Sodium:76.58,Potassium:5.72,Chloride:136.19,Nitrate:14.37,Fluoride:0.74,Iron:0.12,Alkalinity:147.36,Turbidity:3.97,Hardness:196.77,TDS:20964};
+/* Stats computed from the uploaded CSV */
+const DS = {n:22611,pos:8774,
+ miss:{pH:.5,TDS:.4,Sulfate:.5,Turbidity:.5,Nitrate:.4},
+ corr:{Fluoride:-.247,Nitrate:-.195,pH:.123,TDS:-.114,Alkalinity:.046,Calcium:.044,Magnesium:.043,Hardness:.039,Sulfate:.031,Turbidity:-.018},
+ hist:{
+  Turbidity:{lo:0,hi:15,safe:[0,0,165,920,2635,3460,1483,0,0,0,0,0,0,0,0,0,0,0,0,77],unsafe:[0,22,178,1321,3574,4407,3217,819,113,0,0,0,0,0,0,0,0,0,1,117]},
+  Hardness:{lo:0,hi:320,safe:[74,0,0,0,4,11,51,109,232,673,907,1469,2035,1476,976,412,187,141,10,6],unsafe:[126,0,0,0,10,40,84,280,524,998,1627,2692,2946,2231,1264,521,267,203,12,11]},
+  TDS:{lo:0,hi:80000,safe:[53,253,1044,2049,2479,2248,535,0,0,0,0,0,0,0,0,1,0,0,0,76],unsafe:[48,208,741,1570,1846,1574,2750,1983,1462,711,379,241,88,30,26,1,0,0,0,116]},
+  pH:{lo:4,hi:10,safe:[22,0,0,0,0,0,0,0,998,1874,2014,1729,1199,607,248,0,0,0,0,43],unsafe:[68,0,1,22,87,291,783,1630,1911,2115,2299,1925,1313,732,286,186,53,8,1,64]}}};
+/* ======================================= */
+
+const $=s=>document.querySelector(s), FIELDS=[...REQ,...OPT], store="aqua_epoch_hist2";
+let demo=false, curHist="Turbidity";
+const fmt=v=>v>=1000?v.toLocaleString("en-IN"):String(v);
+
+/* ---- tabs ---- */
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>{x.setAttribute("aria-selected",x===b);$("#"+x.getAttribute("aria-controls")).hidden=x!==b});
+  if(b.id==="t2")drawHist();
+});
+
+/* ---- build form ---- */
+$("#req").innerHTML=REQ.map(f=>`
+<div class="f" data-k="${f.k}">
+ <div class="top-row"><label for="n-${f.k}">${f.l}<button type="button" class="tip" aria-label="Safe limits for ${f.l}">?<span class="b" role="tooltip">${f.tip}</span></button></label>
+ <div class="box"><input id="n-${f.k}" type="number" inputmode="decimal" step="any" placeholder="${MED[f.k]}"><span class="u">${f.u}</span></div></div>
+ <input type="range" id="r-${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" value="${f.min}" aria-label="${f.l} slider">
+ <div class="bandwrap"><div class="band" style="left:${f.band[0]/f.max*100}%;width:${(f.band[1]-f.band[0])/f.max*100}%"></div></div>
+ <div class="scale"><span>${fmt(f.min)}</span><span>typical potable ${fmt(f.band[0])} to ${fmt(f.band[1])}</span><span>${fmt(f.max)}</span></div>
+ <div class="m" id="m-${f.k}"></div>
+</div>`).join("");
+$("#adv").innerHTML=OPT.map(f=>`<div><label for="n-${f.k}">${f.l}</label><div class="box"><input id="n-${f.k}" type="number" inputmode="decimal" step="any" placeholder="${MED[f.k]}"><span class="u">${f.u||"0–14"}</span></div><div class="m" id="m-${f.k}"></div></div>`).join("");
+
+function read(f,show=true,required=false){
+  const el=$("#n-"+f.k),raw=el.value.trim(),v=Number(raw);let e="";
+  if(raw==="") e=required?"Enter a value.":"";
+  else if(!Number.isFinite(v)) e="Enter a number.";
+  else if(v<f.min||v>f.max) e=`Must be between ${fmt(f.min)} and ${fmt(f.max)}${f.u?" "+f.u:""}.`;
+  el.parentElement.classList.toggle("err",!!e&&show);$("#m-"+f.k).textContent=show?e:"";
+  return e?{err:e}:{v:raw===""?null:v};
+}
+REQ.forEach(f=>{
+  const n=$("#n-"+f.k),r=$("#r-"+f.k);
+  n.oninput=()=>{read(f,n.value!=="",true);if(n.value!==""&&!isNaN(n.value))r.value=n.value;drawHist()};
+  r.oninput=()=>{n.value=r.value;read(f);drawHist()};
+});
+OPT.forEach(f=>$("#n-"+f.k).oninput=()=>read(f));
+
+/* ---- API ---- */
+async function ping(){
+  const s=$("#status");
+  try{const c=new AbortController();setTimeout(()=>c.abort(),2500);await fetch(API_URL,{signal:c.signal,mode:"no-cors"});demo=false;s.textContent="API connected";}
+  catch(e){demo=true;s.textContent="API offline: demo mode";}
+}
+function demoPredict(d){ // placeholder only so the UI can be previewed. NOT your model.
+  const bad=d.TDS>28000||d.Turbidity>4.6||d.Hardness>300||(d.Nitrate||0)>40||(d.Fluoride||0)>1.5;
+  return {potability:bad?0:1,ph:+(7.1+(d.Hardness-197)/900-(d.Turbidity-4)/40).toFixed(2)};
+}
+async function predict(d){
+  if(demo)return demoPredict(d);
+  const r=await fetch(API_URL+PREDICT_PATH,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});
+  if(!r.ok)throw new Error("API returned "+r.status);
+  const j=await r.json(),p=j.potability??j.potable??j.safe??j.prediction,ph=j.ph??j.predicted_ph??j.pH;
+  return {potability:(p===true||p===1||p==="1"||String(p).toLowerCase()==="yes")?1:0,ph:Number(ph)};
+}
+
+/* ---- submit ---- */
+$("#form").onsubmit=async e=>{
+  e.preventDefault();const d={};let bad=false;
+  REQ.forEach(f=>{const x=read(f,true,true);if(x.err)bad=true;else d[f.k]=x.v});
+  OPT.forEach(f=>{const x=read(f);if(x.err){bad=true;$("#more").open=true}else d[f.k]=x.v});
+  if(bad){document.querySelector(".box.err input")?.focus();return}
+  const b=$("#go");b.disabled=true;b.textContent="Predicting…";const t0=performance.now();
+  try{const r=await predict(d),ms=Math.round(performance.now()-t0);show(r,ms);save(d,r)}
+  catch(err){const v=$("#verdict");v.className="verdict";v.innerHTML=`<b>No prediction</b><span>${err.message}. Check that the backend runs at ${API_URL} and allows CORS.</span>`}
+  b.disabled=false;b.textContent="Predict";
+};
+function show(r,ms){
+  const v=$("#verdict"),n=demo?" Demo values, not the real model.":"";
+  v.className="verdict "+(r.potability?"safe":"unsafe");
+  v.innerHTML=`<b>${r.potability?"Safe to drink":"Not safe to drink"}</b><span>Answered in ${ms} ms.${n}</span>`;
+  $("#phval").textContent=Number.isFinite(r.ph)?r.ph.toFixed(2):"–";
+  const p=$("#pin");p.classList.add("on");p.style.left=Math.min(100,Math.max(0,r.ph/14*100))+"%";
+}
+
+/* ---- history ---- */
+const load=()=>{try{return JSON.parse(localStorage.getItem(store)||"[]")}catch(e){return[]}};
+function save(d,r){const h=load();h.push({t:Date.now(),d,ph:r.ph,p:r.potability});try{localStorage.setItem(store,JSON.stringify(h.slice(-50)))}catch(e){}render()}
+function render(){
+  const h=load(),tb=$("#tbl");tb.hidden=!h.length;
+  tb.tBodies[0].innerHTML=h.slice(-6).reverse().map(r=>`<tr><td>${new Date(r.t).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</td><td>${r.d.Turbidity}</td><td>${r.d.Hardness}</td><td>${fmt(r.d.TDS)}</td><td>${Number(r.ph).toFixed(2)}</td><td><span class="dot" style="background:${r.p?"var(--green)":"var(--coral)"}"></span>${r.p?"Yes":"No"}</td></tr>`).join("");
+  const el=$("#trend");
+  if(h.length<2){el.innerHTML=`<div class="empty">${h.length?"Run one more prediction to see the trend.":"No predictions yet. The pH trend will appear here."}</div>`;return}
+  const W=400,H=120,P=14,y=v=>H-P-Math.min(14,Math.max(0,v))/14*(H-2*P),pts=h.map((r,i)=>[P+i*(W-2*P)/(h.length-1),y(r.ph),r.p]);
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="pH of past predictions" style="height:120px"><rect x="0" y="${y(8.5)}" width="${W}" height="${y(6.5)-y(8.5)}" fill="#9BDCBD" opacity=".5"/><polyline fill="none" stroke="var(--blue)" stroke-width="2" points="${pts.map(p=>p[0]+","+p[1]).join(" ")}"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${p[2]?"#13915B":"#E4572E"}" stroke="#fff" stroke-width="1.5"/>`).join("")}<text x="${W-4}" y="${y(8.5)-3}" text-anchor="end" font-size="10" fill="#62708C">pH 6.5 to 8.5</text></svg>`;
+}
+$("#clear").onclick=()=>{try{localStorage.removeItem(store)}catch(e){}render()};
+
+/* ---- insights ---- */
+$("#stats").innerHTML=[[DS.n.toLocaleString("en-IN"),"samples"],[DS.pos.toLocaleString("en-IN"),"potable ("+(DS.pos/DS.n*100).toFixed(0)+"%)"],[(DS.n-DS.pos).toLocaleString("en-IN"),"not potable"],["18","parameters"]].map(a=>`<div class="stat"><b>${a[0]}</b><span>${a[1]}</span></div>`).join("");
+$("#sel").innerHTML=Object.keys(DS.hist).map(k=>`<button type="button" aria-pressed="${k===curHist}" data-k="${k}">${k}</button>`).join("");
+$("#sel").onclick=e=>{const k=e.target.dataset.k;if(!k)return;curHist=k;[...$("#sel").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));drawHist()};
+function drawHist(){
+  if($("#p2").hidden)return;
+  const h=DS.hist[curHist],n=h.safe.length,W=520,H=230,L=8,B=28,T=10,bw=(W-L*2)/n,max=Math.max(...h.safe,...h.unsafe);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Distribution of ${curHist} for potable and non-potable samples">`;
+  for(let i=0;i<n;i++){
+    const a=h.safe[i]/max*(H-B-T),b=h.unsafe[i]/max*(H-B-T),x=L+i*bw;
+    s+=`<rect x="${x+1}" y="${H-B-a}" width="${bw/2-1}" height="${a}" fill="#1F4FD8"/><rect x="${x+bw/2}" y="${H-B-b}" width="${bw/2-1}" height="${b}" fill="#E4572E"/>`;
+  }
+  const fv=v=>Number.isInteger(v)?fmt(v):v.toFixed(1);
+  s+=`<line x1="${L}" x2="${W-L}" y1="${H-B}" y2="${H-B}" stroke="#DDE4F0"/>`;
+  [0,.5,1].forEach(t=>{const v=h.lo+(h.hi-h.lo)*t;s+=`<text x="${L+t*(W-2*L)}" y="${H-8}" font-size="11" fill="#62708C" text-anchor="${t===0?"start":t===1?"end":"middle"}">${fv(v)}</text>`});
+  const inp=$("#n-"+curHist),v=inp&&inp.value!==""?Number(inp.value):null;
+  if(v!==null&&isFinite(v)){const x=L+Math.min(1,Math.max(0,(v-h.lo)/(h.hi-h.lo)))*(W-2*L);s+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${H-B}" stroke="#0F1E3D" stroke-width="2" stroke-dasharray="5 4"/><text x="${x}" y="${T+8}" font-size="11" font-weight="700" fill="#0F1E3D" text-anchor="${x>W/2?"end":"start"}" dx="${x>W/2?-5:5}">your value</text>`}
+  $("#hist").innerHTML=s+"</svg>";
+}
+$("#corr").innerHTML=`<svg viewBox="0 0 420 ${Object.keys(DS.corr).length*26+4}" role="img" aria-label="Correlation with potability">`+Object.entries(DS.corr).map(([k,v],i)=>{const y=i*26+2,w=Math.abs(v)/.25*110,x=v<0?210-w:210;return`<text x="0" y="${y+15}" font-size="12" fill="#0F1E3D">${k}</text><rect x="${x+20}" y="${y+3}" width="${w}" height="14" rx="3" fill="${v<0?"#E4572E":"#1F4FD8"}"/><text x="${v<0?x+14:x+w+26}" y="${y+15}" font-size="11" fill="#62708C" text-anchor="${v<0?"end":"start"}">${v>0?"+":""}${v}</text>`}).join("")+`<line x1="230" x2="230" y1="0" y2="${Object.keys(DS.corr).length*26}" stroke="#DDE4F0"/></svg>`;
+$("#miss").innerHTML=Object.entries(DS.miss).map(([k,v])=>`<div style="display:flex;align-items:center;gap:10px;font-size:.85rem;margin:6px 0"><span style="width:90px">${k}</span><div style="flex:1;background:#E8ECF4;border-radius:4px;height:8px"><div style="width:${v/1*100}%;max-width:100%;height:8px;border-radius:4px;background:var(--amber)"></div></div><span style="width:40px;text-align:right;font-family:'JetBrains Mono',monospace">${v}%</span></div>`).join("");
+
+render();ping();
+</script>
+</body>
+</html>
